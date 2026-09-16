@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PictAI — Every Picture Has More to Say</title>
+
+  <meta
+    name="description"
+    content="Add interactive descriptions and AI answers directly to your best pictures."
+  >
+
+  <style>
+    :root {
+      --blue: #2f6bff;
+      --dark: #0a1020;
+      --muted: #61708a;
+      --line: #dce4f2;
+      --background: #f8fbff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--dark);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .container {
+      width: min(1160px, calc(100% - 32px));
+      margin: auto;
+    }
+
+    nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px 11px 11px 4px;
+      background: var(--blue);
+      color: white;
+    }
+
+    .logo strong {
+      color: var(--blue);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links a {
+      color: #44516a;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 22px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .button.dark {
+      background: var(--dark);
+    }
+
+    .hero {
+      padding: 90px 0 55px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 24px;
+      border: 1px solid #bbd1ff;
+      border-radius: 999px;
+      padding: 8px 13px;
+      background: #edf3ff;
+      color: #2458ca;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      max-width: 1000px;
+      margin: 0 auto;
+      font-size: clamp(48px, 9vw, 104px);
+      line-height: 0.94;
+      letter-spacing: -6px;
+    }
+
+    h1 span {
+      color: var(--blue);
+    }
+
+    .hero-text {
+      max-width: 720px;
+      margin: 30px auto;
+      color: #4d5b73;
+      font-size: 21px;
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .hero-actions a:last-child {
+      color: #44516a;
+      font-weight: 700;
+    }
+
+    .benefits {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 22px;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .benefits span::before {
+      content: "✓";
+      margin-right: 6px;
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .demo {
+      padding: 35px 0 100px;
+    }
+
+    .demo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      border-radius: 18px 18px 0 0;
+      padding: 14px 18px;
+      background: #111827;
+      color: white;
+    }
+
+    .live {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .live::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: #57e596;
+    }
+
+    .demo-tabs {
+      display: flex;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 4px;
+      background: #222b3c;
+    }
+
+    .demo-tabs button {
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: transparent;
+      color: #aeb8ca;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .demo-tabs button.active {
+      background: white;
+      color: var(--dark);
+    }
+
+    .picture {
+      position: relative;
+      height: min(67vw, 660px);
+      min-height: 420px;
+      overflow: hidden;
+      border-radius: 0 0 22px 22px;
+      background: #111827;
+      box-shadow: 0 30px 80px rgba(17, 24, 39, 0.18);
+    }
+
+    .picture img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .marker {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      transform: translate(-50%, -50%);
+      border: 2px solid white;
+      border-radius: 50%;
+      background: white;
+      color: var(--blue);
+      font-weight: 900;
+      box-shadow: 0 5px 22px rgba(0, 0, 0, 0.55);
+    }
+
+    .marker.active {
+      background: var(--blue);
+      color: white;
+    }
+
+    .marker::after {
+      content: "";
+      position: absolute;
+      inset: -9px;
+      border: 2px solid rgba(255, 255, 255, 0.65);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      50% {
+        transform: scale(1.2);
+        opacity: 0.15;
+      }
+    }
+
+    .bubble {
+      position: absolute;
+      left: 4%;
+      bottom: 5%;
+      width: min(370px, calc(100% - 32px));
+      border-radius: 17px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .bubble small {
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+    }
+
+    .bubble h3 {
+      margin: 7px 0 5px;
+      font-size: 20px;
+    }
+
+    .bubble p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .section {
+      padding: 100px 0;
+    }
+
+    .section-heading {
+      max-width: 760px;
+      margin: 0 auto 45px;
+      text-align: center;
+    }
+
+    .section-heading small {
+      color: var(--blue);
+      font-weight: 900;
+      letter-spacing: 1.5px;
+    }
+
+    .section-heading h2 {
+      margin: 14px 0;
+      font-size: clamp(36px, 5vw, 62px);
+      line-height: 1;
+      letter-spacing: -3px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .steps,
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .step,
+    .plan {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 28px;
+      background: white;
+    }
+
+    .step-number {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: #e8f0ff;
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .step h3 {
+      margin: 22px 0 9px;
+    }
+
+    .step p,
+    .plan p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .statement {
+      padding: 80px 0;
+      background: var(--dark);
+      color: white;
+      text-align: center;
+    }
+
+    .statement h2 {
+      max-width: 950px;
+      margin: auto;
+      font-size: clamp(36px, 6vw, 72px);
+      line-height: 1.08;
+      letter-spacing: -4px;
+    }
+
+    .plan {
+      display: flex;
+      flex-direction: column;
+      min-height: 410px;
+    }
+
+    .plan.featured {
+      position: relative;
+      border: 2px solid var(--blue);
+      box-shadow: 0 24px 60px rgba(47, 107, 255, 0.14);
+    }
+
+    .badge {
+      position: absolute;
+      top: -14px;
+      right: 20px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--blue);
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .plan-name {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+    }
+
+    .price {
+      margin: 12px 0 5px;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -2px;
+    }
+
+    .price small {
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .plan ul {
+      flex: 1;
+      list-style: none;
+      margin: 18px 0;
+      padding: 18px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .plan li {
+      margin: 13px 0;
+    }
+
+    .plan li::before {
+      content: "✓";
+      margin-right: 9px;
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .modal-background {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(7, 16, 31, 0.88);
+    }
+
+    .modal-background.open {
+      display: grid;
+    }
+
+    .modal {
+      position: relative;
+      width: min(500px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      border-radius: 24px;
+      padding: 34px;
+      background: white;
+    }
+
+    .close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 50%;
+      background: #eef3fa;
+      font-size: 22px;
+    }
+
+    .modal h2 {
+      margin: 10px 0;
+      font-size: 34px;
+      letter-spacing: -2px;
+    }
+
+    form {
+      display: grid;
+      gap: 15px;
+      margin-top: 24px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid #ccd7e7;
+      border-radius: 11px;
+      padding: 13px;
+      background: white;
+    }
+
+    @media (max-width: 760px) {
+      .nav-links a {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 55px;
+      }
+
+      h1 {
+        font-size: clamp(48px, 16vw, 76px);
+        letter-spacing: -4px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .demo-header {
+        justify-content: center;
+      }
+
+      .live {
+        display: none;
+      }
+
+      .demo-tabs {
+        width: 100%;
+      }
+
+      .demo-tabs button {
+        flex: 1;
+      }
+
+      .picture {
+        height: 65vh;
+        min-height: 510px;
+      }
+
+      .steps,
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="container">
+    <a class="logo" href="#">
+      <span class="logo-icon">P</span>
+      <span>Pict<strong>AI</strong></span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <button class="button dark open-profile">Create profile</button>
+    </div>
+  </nav>
+
+  <header class="hero container">
+    <div class="eyebrow">✦ INTERACTIVE PICTURES THAT SELL</div>
+
+    <h1>
+      A picture is worth<br>
+      a thousand <span>words.</span>
+    </h1>
+
+    <p class="hero-text">
+      Don’t make customers scroll down for the details. Keep them focused
+      on your best picture—with answers exactly where they’re looking.
+    </p>
+
+    <div class="hero-actions">
+      <button class="button open-profile">Make a picture talk →</button>
+      <a href="#demo">Try the live demo</a>
+    </div>
+
+    <div class="benefits">
+      <span>Click or tap</span>
+      <span>No code needed</span>
+      <span>Works on any listing</span>
+    </div>
+  </header>
+
+  <section id="demo" class="demo container">
+    <div class="demo-header">
+      <div class="live">LIVE DEMO</div>
+
+      <div class="demo-tabs">
+        <button class="active" data-demo="mansion">
+          Luxury real estate
+        </button>
+
+        <button data-demo="automobile">
+          Premium automobile
+        </button>
+      </div>
+
+      <div>Tap a marker to explore</div>
+    </div>
+
+    <div class="picture">
+      <img
+        id="demo-image"
+        src="mansion.png"
+        alt="Luxury mansion interior"
+      >
+
+      <div id="markers"></div>
+
+      <div class="bubble">
+        <small>PICTURE DETAIL</small>
+        <h3 id="bubble-title">Sculptural staircase</h3>
+        <p id="bubble-text">
+          Custom curved staircase with glass railing and integrated lighting.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="section container">
+    <div class="section-heading">
+      <small>THE PICTAI DIFFERENCE</small>
+      <h2>Keep the picture. Bring the details to it.</h2>
+
+      <p>
+        Turn static listing photos into guided, interactive experiences
+        without interrupting the buyer’s train of thought.
+      </p>
+    </div>
+
+    <div class="steps">
+      <article class="step">
+        <div class="step-number">01</div>
+        <h3>Upload your best picture</h3>
+        <p>
+          Start with a property, automobile, product, or any item you want
+          to sell.
+        </p>
+      </article>
+
+      <article class="step">
+        <div class="step-number">02</div>
+        <h3>Place your detail bubbles</h3>
+        <p>
+          Click or tap each important feature and add a clear description.
+        </p>
+      </article>
+
+      <article class="step">
+        <div class="step-number">03</div>
+        <h3>Share it anywhere</h3>
+        <p>
+          Publish your interactive picture or add it to your current listing.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="statement">
+    <div class="container">
+      <h2>
+        “Don’t let customers lose their train of thought on your best
+        pictures.”
+      </h2>
+    </div>
+  </section>
+
+  <section id="pricing" class="section container">
+    <div class="section-heading">
+      <small>SIMPLE PRICING</small>
+      <h2>Start free. Add intelligence when you need it.</h2>
+    </div>
+
+    <div class="pricing-grid">
+      <article class="plan">
+        <div class="plan-name">STARTER</div>
+        <div class="price">Free</div>
+
+        <p>Make every picture more useful.</p>
+
+        <ul>
+          <li>Interactive picture bubbles</li>
+          <li>Up to 20 words per detail</li>
+          <li>Private or business profile</li>
+        </ul>
+
+        <button class="button open-profile">Start free</button>
+      </article>
+
+      <article class="plan">
+        <div class="plan-name">PROFESSIONAL</div>
+
+        <div class="price">
+          $19.95 <small>/ month</small>
+        </div>
+
+        <p>For Realtors and auto dealers.</p>
+
+        <ul>
+          <li>More pictures and descriptions</li>
+          <li>Business profile and branding</li>
+          <li>Customer text notifications</li>
+        </ul>
+
+        <button class="button open-profile">
+          Choose Professional
+        </button>
+      </article>
+
+      <article class="plan featured">
+        <div class="badge">AI POWERED</div>
+        <div class="plan-name">PICTAI ASSISTANT</div>
+
+        <div class="price">
+          $49.95 <small>/ month</small>
+        </div>
+
+        <p>Answers that stay with the picture.</p>
+
+        <ul>
+          <li>Everything in Professional</li>
+          <li>AI-assisted descriptions</li>
+          <li>Picture-aware question-and-answer chat</li>
+        </ul>
+
+        <button class="button open-profile">
+          Choose AI Assistant
+        </button>
+      </article>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <strong>PictAI.app</strong>
+      <p>Every picture has more to say.</p>
+      <small>© 2026 PictAI</small>
+    </div>
+  </footer>
+
+  <div id="profile-modal" class="modal-background">
+    <div class="modal">
+      <button id="close-modal" class="close" aria-label="Close">×</button>
+
+      <small class="plan-name">CREATE YOUR PROFILE</small>
+      <h2>Make your pictures talk.</h2>
+      <p>Tell us how you plan to use PictAI.</p>
+
+      <form id="profile-form">
+        <label>
+          Name
+          <input name="name" required placeholder="Your name">
+        </label>
+
+        <label>
+          Email
+          <input
+            name="email"
+            type="email"
+            required
+            placeholder="you@example.com"
+          >
+        </label>
+
+        <label>
+          Mobile number
+          <input
+            name="phone"
+            type="tel"
+            placeholder="For text notifications"
+          >
+        </label>
+
+        <label>
+          Profile type
+          <select name="profileType">
+            <option value="private">Private seller</option>
+            <option value="realtor">Realtor</option>
+            <option value="auto_dealer">Auto dealer</option>
+            <option value="business">Other business</option>
+          </select>
+        </label>
+
+        <button class="button" type="submit">Create profile</button>
+      </form>
+
+      <div id="success-message" hidden>
+        <h2>Thank you!</h2>
+        <p>Your PictAI profile request was received.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const demonstrations = {
+      mansion: {
+        image: "mansion.png",
+        alt: "Luxury mansion interior",
+        points: [
+          {
+            x: 67,
+            y: 39,
+            title: "Sculptural staircase",
+            text: "Custom curved staircase with glass railing and integrated lighting."
+          },
+          {
+            x: 20,
+            y: 38,
+            title: "Uninterrupted views",
+            text: "Floor-to-ceiling glass frames panoramic sunset and water views."
+          },
+          {
+            x: 74,
+            y: 58,
+            title: "Statement fireplace",
+            text: "Book-matched stone fireplace anchors the double-height living room."
+          }
+        ]
+      },
+
+      automobile: {
+        image: "automobile.png",
+        alt: "Shining luxury automobile",
+        points: [
+          {
+            x: 43,
+            y: 57,
+            title: "Advanced lighting",
+            text: "Adaptive LED headlights illuminate curves without dazzling traffic."
+          },
+          {
+            x: 68,
+            y: 62,
+            title: "Premium finish",
+            text: "Deep black metallic paint with a protective ceramic finish."
+          },
+          {
+            x: 75,
+            y: 76,
+            title: "Performance wheels",
+            text: "Lightweight 21-inch wheels paired with high-performance tires."
+          }
+        ]
+      }
+    };
+
+    const image = document.getElementById("demo-image");
+    const markers = document.getElementById("markers");
+    const bubbleTitle = document.getElementById("bubble-title");
+    const bubbleText = document.getElementById("bubble-text");
+
+    function showDescription(point, selectedMarker) {
+      bubbleTitle.textContent = point.title;
+      bubbleText.textContent = point.text;
+
+      document.querySelectorAll(".marker").forEach(marker => {
+        marker.classList.remove("active");
+      });
+
+      selectedMarker.classList.add("active");
+    }
+
+    function loadDemonstration(name) {
+      const demonstration = demonstrations[name];
+
+      image.src = demonstration.image;
+      image.alt = demonstration.alt;
+      markers.innerHTML = "";
+
+      demonstration.points.forEach((point, index) => {
+        const marker = document.createElement("button");
+
+        marker.className = "marker";
+        marker.textContent = index + 1;
+        marker.style.left = point.x + "%";
+        marker.style.top = point.y + "%";
+        marker.setAttribute("aria-label", "View " + point.title);
+
+        marker.addEventListener("click", () => {
+          showDescription(point, marker);
+        });
+
+        markers.appendChild(marker);
+      });
+
+      const firstMarker = markers.querySelector(".marker");
+
+      if (firstMarker) {
+        showDescription(demonstration.points[0], firstMarker);
+      }
+    }
+
+    document.querySelectorAll("[data-demo]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-demo]").forEach(tab => {
+          tab.classList.remove("active");
+        });
+
+        button.classList.add("active");
+        loadDemonstration(button.dataset.demo);
+      });
+    });
+
+    const modal = document.getElementById("profile-modal");
+
+    document.querySelectorAll(".open-profile").forEach(button => {
+      button.addEventListener("click", () => {
+        modal.classList.add("open");
+      });
+    });
+
+    document.getElementById("close-modal").addEventListener("click", () => {
+      modal.classList.remove("open");
+    });
+
+    modal.addEventListener("click", event => {
+      if (event.target === modal) {
+        modal.classList.remove("open");
+      }
+    });
+
+    document.getElementById("profile-form").addEventListener("submit", event => {
+      event.preventDefault();
+
+      event.target.hidden = true;
+      document.getElementById("success-message").hidden = false;
+    });
+
+    loadDemonstration("mansion");
+  </script>
+</body>
+</html>
